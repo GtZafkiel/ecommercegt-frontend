@@ -1,26 +1,54 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardLayout from "./layouts/DashboardLayout";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+// Páginas del dashboard (usuario común)
+import ComunPanel from "./pages/dashboard/ComunPanel";
+import MisProductos from "./pages/dashboard/MisProductos";
+import NuevoProducto from "./pages/dashboard/NuevoProducto";
+import EditarProducto from "./pages/dashboard/EditarProducto";
+import Carrito from "./pages/dashboard/Carrito";
+import Tarjetas from "./pages/dashboard/Tarjetas";
+import Pedidos from "./pages/dashboard/Pedidos";
+import Resenas from "./pages/dashboard/Resenas";
+import Perfil from "./pages/dashboard/Perfil";
+import Tienda from "./pages/dashboard/Tienda";
+import MisCompras from "./pages/dashboard/MisCompras";
+
+
+const router = createBrowserRouter([
+    { path: "/", element: <Home /> },
+    { path: "/login", element: <Login /> },
+    { path: "/register", element: <Register /> },
+
+    {
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: "/dashboard",
+                element: <DashboardLayout />,
+                children: [
+                    { index: true, element: <ComunPanel /> },
+                    { path: "mis-productos", element: <MisProductos /> },
+                    { path: "mis-productos/nuevo", element: <NuevoProducto /> },
+                    { path: "mis-productos/editar/:productoId", element: <EditarProducto /> },
+                    { path: "tienda", element: <Tienda /> },
+                    { path: "carrito", element: <Carrito /> },
+                    { path: "tarjetas", element: <Tarjetas /> },
+                    { path: "mis-compras", element: <MisCompras /> },
+                    { path: "pedidos", element: <Pedidos /> },
+                    { path: "resenas", element: <Resenas /> },
+                    { path: "perfil", element: <Perfil /> },
+                ],
+            },
+        ],
+    },
+]);
+
+export default function App() {
+    return <RouterProvider router={router} />;
 }
-
-export default App;
