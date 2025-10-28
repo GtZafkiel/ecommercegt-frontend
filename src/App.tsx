@@ -6,7 +6,7 @@ import Register from "./pages/Register";
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
 
-// Páginas del dashboard (usuario común)
+// ==== Usuario Común ====
 import ComunPanel from "./pages/dashboard/ComunPanel";
 import MisProductos from "./pages/dashboard/MisProductos";
 import NuevoProducto from "./pages/dashboard/NuevoProducto";
@@ -18,7 +18,20 @@ import Resenas from "./pages/dashboard/Resenas";
 import Perfil from "./pages/dashboard/Perfil";
 import Tienda from "./pages/dashboard/Tienda";
 import MisCompras from "./pages/dashboard/MisCompras";
+import DetalleProducto from "./pages/dashboard/DetalleProducto";
 
+// ==== Moderador ====
+import ModeradorPanel from "./pages/dashboard/ModeradorPanel";
+import SolicitudesProductos from "./pages/dashboard/SolicitudesProductos";
+import Sanciones from "./pages/dashboard/Sanciones";
+
+// ==== Logística ====
+import LogisticaPanel from "./pages/dashboard/LogisticaPanel";
+import PedidosLogistica from "./pages/dashboard/PedidosLogistica";
+
+// ==== Administrador ====
+import AdminPanel from "./pages/dashboard/AdminPanel";
+import DashboardRedirect from "./pages/dashboard/DashboardRedirect";
 
 const router = createBrowserRouter([
     { path: "/", element: <Home /> },
@@ -32,17 +45,32 @@ const router = createBrowserRouter([
                 path: "/dashboard",
                 element: <DashboardLayout />,
                 children: [
-                    { index: true, element: <ComunPanel /> },
+                    // ==== Usuario Común ====
+                    { index: true, element: <DashboardRedirect /> },
+                    { path: "comun", element: <ComunPanel /> },
                     { path: "mis-productos", element: <MisProductos /> },
                     { path: "mis-productos/nuevo", element: <NuevoProducto /> },
                     { path: "mis-productos/editar/:productoId", element: <EditarProducto /> },
                     { path: "tienda", element: <Tienda /> },
+                    { path: "producto/:id", element: <DetalleProducto /> },
                     { path: "carrito", element: <Carrito /> },
                     { path: "tarjetas", element: <Tarjetas /> },
                     { path: "mis-compras", element: <MisCompras /> },
                     { path: "pedidos", element: <Pedidos /> },
                     { path: "resenas", element: <Resenas /> },
                     { path: "perfil", element: <Perfil /> },
+
+                    // ==== Moderador ====
+                    { path: "moderador", element: <ModeradorPanel /> },
+                    { path: "moderador/solicitudes", element: <SolicitudesProductos /> },
+                    { path: "moderador/sanciones", element: <Sanciones /> },
+
+                    // ==== Logística ====
+                    { path: "logistica", element: <LogisticaPanel /> },
+                    { path: "logistica/pedidos", element: <PedidosLogistica /> },
+
+                    // ==== Administrador ====
+                    { path: "admin", element: <AdminPanel /> },
                 ],
             },
         ],

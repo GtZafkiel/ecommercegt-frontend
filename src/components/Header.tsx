@@ -45,12 +45,12 @@ const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
                     {role === "MODERADOR" && (
                         <>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/moderador">
+                                <Link className="nav-link" to="/dashboard/moderador/solicitudes">
                                     Solicitudes
                                 </Link>
                             </li>
                             <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/sanciones">
+                                <Link className="nav-link" to="/dashboard/moderador/sanciones">
                                     Sanciones
                                 </Link>
                             </li>
@@ -125,6 +125,12 @@ const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
                                     Mis Pedidos
                                 </Link>
                             </li>
+                            <li className="nav-item">
+                                <Link className="nav-link" to="/dashboard/mis-compras">
+                                    Mis Compras
+                                </Link>
+                            </li>
+
 
                             {/* Dropdown de cuenta */}
                             <li className="nav-item dropdown">

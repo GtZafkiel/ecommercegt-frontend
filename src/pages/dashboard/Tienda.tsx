@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 export default function Tienda() {
@@ -7,12 +8,12 @@ export default function Tienda() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [mensaje, setMensaje] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const cargarProductos = async () => {
         setLoading(true);
         setError(null);
         try {
-            // 🔹 Ahora apunta al nuevo endpoint /tienda/
             const res = await api.get(`/tienda/disponibles/${user.usuarioId}`);
             setProductos(res.data);
         } catch {
@@ -39,6 +40,9 @@ export default function Tienda() {
         }
     };
 
+    const verDetalle = (productoId: number) => {
+        navigate(`/dashboard/producto/${productoId}`);
+    };
 
     return (
         <div className="container mt-4">
@@ -60,7 +64,7 @@ export default function Tienda() {
                         <th>Categoría</th>
                         <th>Precio (Q)</th>
                         <th>Stock</th>
-                        <th>Acción</th>
+                        <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -97,12 +101,17 @@ export default function Tienda() {
                                     >
                                         Agregar
                                     </button>
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        onClick={() => verDetalle(p.productoId)}
+                                    >
+                                        Ver Detalle
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     ))}
                     </tbody>
-
                 </table>
             ) : (
                 <div className="alert alert-info">No hay productos disponibles.</div>

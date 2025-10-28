@@ -1,52 +1,67 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
+import DetallePedidoModal from "./DetallePedidoModal";
+
+interface Pedido {
+    pedidoId: number;
+    fechaEnvio: string;
+    fechaEntrega?: string;
+    estado: string;
+    total: number;
+}
 
 export default function Pedidos() {
-    const [pedidos, setPedidos] = useState<any[]>([]);
+    const [pedidos, setPedidos] = useState<Pedido[]>([]);
+    const [pedidoSeleccionado, setPedidoSeleccionado] = useState<Pedido | null>(null);
     const [loading, setLoading] = useState(false);
-    const user = JSON.parse(localStorage.getItem("user") || "{}");
-
-    const cargarPedidos = async () => {
-        setLoading(true);
-        try {
-            const res = await api.get(`/pedidos/usuario/${user.usuarioId}`);
-            setPedidos(res.data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     useEffect(() => {
         cargarPedidos();
     }, []);
 
+    async function cargarPedidos() {
+        setLoading(true);
+        try {
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            const res = await api.get(`/pedidos/usuario/${user.usuarioId}`);
+            setPedidos(res.data);
+        } catch (err) {
+            console.error("Error al cargar los pedidos:", err);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="container mt-4">
-            <h2 className="mb-4">Mis Pedidos</h2>
+            <h3 className="mb-3">Mis Pedidos</h3>
 
             {loading ? (
-                <div className="text-center py-5">
-                    <div className="spinner-border text-primary" role="status"></div>
-                    <p className="mt-3">Cargando pedidos...</p>
+                <div className="text-center py-4">
+                    <div className="spinner-border text-primary"></div>
                 </div>
             ) : pedidos.length > 0 ? (
-                <table className="table table-hover table-bordered align-middle">
+                <table className="table table-striped table-hover align-middle">
                     <thead className="table-dark text-center">
                     <tr>
                         <th>ID</th>
-                        <th>Fecha</th>
-                        <th>Total (Q)</th>
+                        <th>Fecha Envío</th>
+                        <th>Fecha Entrega</th>
                         <th>Estado</th>
+                        <th>Total (Q)</th>
+                        <th>Acciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     {pedidos.map((p) => (
                         <tr key={p.pedidoId}>
                             <td className="text-center">{p.pedidoId}</td>
-                            <td>{new Date(p.fecha).toLocaleString()}</td>
-                            <td className="text-end">Q{p.total.toFixed(2)}</td>
+                            <td>{new Date(p.fechaEnvio).toLocaleDateString()}</td>
+                            <td>
+                                {p.fechaEntrega
+                                    ? new Date(p.fechaEntrega).toLocaleDateString()
+                                    : "Pendiente"}
+                            </td>
                             <td className="text-center">
                   <span
                       className={`badge ${
@@ -58,12 +73,28 @@ export default function Pedidos() {
                     {p.estado}
                   </span>
                             </td>
+                            <td className="text-end fw-bold">Q{p.total.toFixed(2)}</td>
+                            <td className="text-center">
+                                <button
+                                    className="btn btn-sm btn-primary"
+                                    onClick={() => setPedidoSeleccionado(p)}
+                                >
+                                    Ver Detalle
+                                </button>
+                            </td>
                         </tr>
                     ))}
                     </tbody>
                 </table>
             ) : (
-                <div className="alert alert-info">Aún no tienes pedidos realizados.</div>
+                <p className="text-muted">No tienes pedidos registrados.</p>
+            )}
+
+            {pedidoSeleccionado && (
+                <DetallePedidoModal
+                    pedido={pedidoSeleccionado}
+                    onClose={() => setPedidoSeleccionado(null)}
+                />
             )}
         </div>
     );
