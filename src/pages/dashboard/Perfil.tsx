@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 
 export default function Carrito() {
@@ -6,7 +6,8 @@ export default function Carrito() {
     const [loading, setLoading] = useState(false);
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-    const cargarCarrito = async () => {
+    // Se usa para cargar el carrito del usuario
+    const cargarCarrito = useCallback(async () => {
         setLoading(true);
         try {
             const res = await api.get(`/carrito/${user.usuarioId}`);
@@ -16,7 +17,7 @@ export default function Carrito() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.usuarioId]); // dependencia agregada correctamente
 
     const eliminarItem = async (id: number) => {
         if (!window.confirm("¿Eliminar este producto del carrito?")) return;
@@ -32,7 +33,7 @@ export default function Carrito() {
 
     useEffect(() => {
         cargarCarrito();
-    }, []);
+    }, [cargarCarrito]);
 
     if (loading) {
         return (
@@ -66,8 +67,12 @@ export default function Carrito() {
                             <tr key={item.itemId}>
                                 <td>{item.producto.nombre}</td>
                                 <td className="text-center">{item.cantidad}</td>
-                                <td className="text-end">Q{item.producto.precio.toFixed(2)}</td>
-                                <td className="text-end">Q{item.subtotal.toFixed(2)}</td>
+                                <td className="text-end">
+                                    Q{item.producto.precio.toFixed(2)}
+                                </td>
+                                <td className="text-end">
+                                    Q{item.subtotal.toFixed(2)}
+                                </td>
                                 <td className="text-center">
                                     <button
                                         className="btn btn-sm btn-outline-danger"
@@ -82,10 +87,15 @@ export default function Carrito() {
                     </table>
 
                     <div className="d-flex justify-content-between align-items-center mt-3">
-                        <button className="btn btn-outline-secondary" onClick={vaciarCarrito}>
+                        <button
+                            className="btn btn-outline-secondary"
+                            onClick={vaciarCarrito}
+                        >
                             Vaciar Carrito
                         </button>
-                        <h4 className="fw-bold">Total: Q{carrito.total.toFixed(2)}</h4>
+                        <h4 className="fw-bold">
+                            Total: Q{carrito.total.toFixed(2)}
+                        </h4>
                     </div>
 
                     <div className="text-end mt-3">

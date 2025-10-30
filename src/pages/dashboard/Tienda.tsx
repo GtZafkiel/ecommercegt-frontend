@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
@@ -10,7 +10,9 @@ export default function Tienda() {
     const [mensaje, setMensaje] = useState<string | null>(null);
     const navigate = useNavigate();
 
-    const cargarProductos = async () => {
+    // Se usa para cargar los productos disponibles
+    const cargarProductos = useCallback(async () => {
+        if (!user?.usuarioId) return;
         setLoading(true);
         setError(null);
         try {
@@ -21,11 +23,11 @@ export default function Tienda() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.usuarioId]); // dependencia agregada correctamente
 
     useEffect(() => {
         cargarProductos();
-    }, []);
+    }, [cargarProductos]);
 
     const agregarAlCarrito = async (productoId: number, cantidad: number) => {
         try {

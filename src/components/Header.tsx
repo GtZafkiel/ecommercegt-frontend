@@ -84,17 +84,17 @@ const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
                                 </Link>
                             </li>
 
+
                             <li className="nav-item dropdown mx-2">
-                                <a
-                                    className="nav-link dropdown-toggle d-flex align-items-center gap-1"
-                                    href="#"
+                                <button
+                                    className="nav-link dropdown-toggle d-flex align-items-center gap-1 bg-transparent border-0 text-white"
                                     id="productosDropdown"
-                                    role="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
+                                    type="button"
                                 >
                                     <i className="bi bi-box-seam"></i> Mis Productos
-                                </a>
+                                </button>
                                 <ul className="dropdown-menu text-center" aria-labelledby="productosDropdown">
                                     <li>
                                         <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/mis-productos">
@@ -126,16 +126,15 @@ const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
                             </li>
 
                             <li className="nav-item dropdown mx-2">
-                                <a
-                                    className="nav-link dropdown-toggle d-flex align-items-center gap-1"
-                                    href="#"
+                                <button
+                                    className="nav-link dropdown-toggle d-flex align-items-center gap-1 bg-transparent border-0 text-white"
                                     id="cuentaDropdown"
-                                    role="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
+                                    type="button"
                                 >
                                     <i className="bi bi-person-circle"></i> Cuenta
-                                </a>
+                                </button>
                                 <ul className="dropdown-menu text-center" aria-labelledby="cuentaDropdown">
                                     <li>
                                         <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/tarjetas">

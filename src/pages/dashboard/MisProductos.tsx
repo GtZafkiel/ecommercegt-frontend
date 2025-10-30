@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import BotonAgregarCarrito from "../../components/BotonAgregarCarrito";
 import { getProductosByUser, eliminarProducto } from "../../services/api";
@@ -13,7 +13,7 @@ export default function MisProductos() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
     // Se usa para cargar los productos del usuario
-    const cargarProductos = async () => {
+    const cargarProductos = useCallback(async () => {
         if (!user?.usuarioId) return;
         setLoading(true);
         setError(null);
@@ -27,11 +27,11 @@ export default function MisProductos() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.usuarioId]); // dependencia agregada correctamente
 
     useEffect(() => {
         cargarProductos();
-    }, []);
+    }, [cargarProductos]);
 
     const handleEliminar = async (id: number) => {
         if (!window.confirm("¿Seguro que deseas eliminar este producto?")) return;
@@ -99,17 +99,17 @@ export default function MisProductos() {
                                     <td className="text-center">{p.stock}</td>
                                     <td className="text-center">{p.estado}</td>
                                     <td className="text-center">
-                      <span
-                          className={`badge ${
-                              p.estadoRevision === "APROBADO"
-                                  ? "bg-success"
-                                  : p.estadoRevision === "RECHAZADO"
-                                      ? "bg-danger"
-                                      : "bg-warning text-dark"
-                          }`}
-                      >
-                        {p.estadoRevision}
-                      </span>
+                                            <span
+                                                className={`badge ${
+                                                    p.estadoRevision === "APROBADO"
+                                                        ? "bg-success"
+                                                        : p.estadoRevision === "RECHAZADO"
+                                                            ? "bg-danger"
+                                                            : "bg-warning text-dark"
+                                                }`}
+                                            >
+                                                {p.estadoRevision}
+                                            </span>
                                     </td>
                                     <td className="text-center">
                                         <div className="d-flex flex-column gap-2 align-items-center">

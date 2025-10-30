@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 
 interface Calificacion {
@@ -13,19 +13,26 @@ export default function Resenas() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const [resenas, setResenas] = useState<Calificacion[]>([]);
 
-    useEffect(() => {
-        if (user?.usuarioId) cargarResenas();
-    }, []);
+    // Se usa para cargar las reseñas del usuario autenticado
+    const cargarResenas = useCallback(async () => {
+        if (!user?.usuarioId) return;
+        try {
+            const res = await api.get(`/calificaciones/usuario/${user.usuarioId}`);
+            setResenas(res.data.calificaciones);
+        } catch (err) {
+            console.error("Error al cargar las reseñas", err);
+            setResenas([]);
+        }
+    }, [user?.usuarioId]); // dependencia agregada correctamente
 
-    async function cargarResenas() {
-        const res = await api.get(`/calificaciones/usuario/${user.usuarioId}`);
-        setResenas(res.data.calificaciones);
-    }
+    useEffect(() => {
+        cargarResenas();
+    }, [cargarResenas]);
 
     return (
         <div className="container mt-4">
             <h3 className="text-center mb-4">Mis Reseñas</h3>
-            <table className="table table-striped text-center">
+            <table className="table table-striped text-center align-middle">
                 <thead className="table-success">
                 <tr>
                     <th>Producto</th>
@@ -46,7 +53,9 @@ export default function Resenas() {
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={4}>Aún no has realizado reseñas.</td>
+                        <td colSpan={4} className="text-muted">
+                            Aún no has realizado reseñas.
+                        </td>
                     </tr>
                 )}
                 </tbody>

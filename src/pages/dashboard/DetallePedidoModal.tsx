@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 
 interface Producto {
@@ -36,11 +36,8 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
     const [detalles, setDetalles] = useState<Detalle[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        cargarDetalle();
-    }, []);
-
-    const cargarDetalle = async () => {
+    // Se usa para cargar el detalle del pedido desde el backend
+    const cargarDetalle = useCallback(async () => {
         try {
             const res = await api.get(`/pedidos/${pedido.pedidoId}/detalle`);
             setDetalles(res.data.venta.detalles || []);
@@ -49,7 +46,11 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [pedido.pedidoId]); // Dependencia agregada correctamente
+
+    useEffect(() => {
+        cargarDetalle();
+    }, [cargarDetalle]);
 
     return (
         <div

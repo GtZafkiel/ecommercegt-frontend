@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState, useCallback} from "react";
 import api from "../../services/api";
 
 interface Tarjeta {
@@ -28,9 +28,9 @@ export default function Carrito() {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
 
     // ============================
-    // Se usa para cargar carrito y tarjetas guardadas del usuario
+    // Se usa para cargar carrito y tarjetas del usuario
     // ============================
-    const cargarDatos = async () => {
+    const cargarDatos = useCallback(async () => {
         setLoading(true);
         try {
             const [carritoRes, tarjetasRes] = await Promise.all([
@@ -45,12 +45,11 @@ export default function Carrito() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user.usuarioId]);
 
     useEffect(() => {
         cargarDatos();
-    }, []);
-
+    }, [cargarDatos]);
     // ============================
     // Se usa para eliminar un producto específico del carrito
     // ============================
@@ -73,7 +72,7 @@ export default function Carrito() {
         try {
             await api.delete(`/carrito/${user.usuarioId}/vaciar`);
             setMensaje("Carrito vaciado correctamente");
-            setCarrito({ items: [], total: 0 });
+            setCarrito({items: [], total: 0});
         } catch (err) {
             console.error(err);
             setError("Error al vaciar carrito");
@@ -94,9 +93,9 @@ export default function Carrito() {
         }
 
         try {
-            await api.post(`/tarjetas`, { ...nuevaTarjeta, usuario: { usuarioId: user.usuarioId } });
+            await api.post(`/tarjetas`, {...nuevaTarjeta, usuario: {usuarioId: user.usuarioId}});
             setMensaje("Tarjeta guardada correctamente");
-            setNuevaTarjeta({ numero: "", nombreTitular: "", expiracion: "", cvv: "", tipo: "VISA" });
+            setNuevaTarjeta({numero: "", nombreTitular: "", expiracion: "", cvv: "", tipo: "VISA"});
             cargarDatos();
         } catch {
             setError("No se pudo guardar la tarjeta");
@@ -121,7 +120,7 @@ export default function Carrito() {
 
         try {
             setLoading(true);
-            const payload: any = { metodoPago };
+            const payload: any = {metodoPago};
 
             if (metodoPago === "TARJETA") {
                 if (tarjetaSeleccionada === "nueva") {
@@ -135,7 +134,7 @@ export default function Carrito() {
             setMensaje(res.data.mensaje || "Venta registrada correctamente");
 
             await api.delete(`/carrito/${user.usuarioId}/vaciar`);
-            setCarrito({ items: [], total: 0 });
+            setCarrito({items: [], total: 0});
 
             setTimeout(() => {
                 window.location.href = "/dashboard/mis-compras";
@@ -256,7 +255,7 @@ export default function Carrito() {
                                                         value={nuevaTarjeta.numero}
                                                         onChange={(e) => {
                                                             const value = e.target.value.replace(/\D/g, "");
-                                                            setNuevaTarjeta({ ...nuevaTarjeta, numero: value });
+                                                            setNuevaTarjeta({...nuevaTarjeta, numero: value});
                                                         }}
                                                     />
                                                 </div>
@@ -267,7 +266,10 @@ export default function Carrito() {
                                                         className="form-control"
                                                         value={nuevaTarjeta.nombreTitular}
                                                         onChange={(e) =>
-                                                            setNuevaTarjeta({ ...nuevaTarjeta, nombreTitular: e.target.value })
+                                                            setNuevaTarjeta({
+                                                                ...nuevaTarjeta,
+                                                                nombreTitular: e.target.value
+                                                            })
                                                         }
                                                     />
                                                 </div>
@@ -280,7 +282,10 @@ export default function Carrito() {
                                                         placeholder="09/27"
                                                         value={nuevaTarjeta.expiracion}
                                                         onChange={(e) =>
-                                                            setNuevaTarjeta({ ...nuevaTarjeta, expiracion: e.target.value })
+                                                            setNuevaTarjeta({
+                                                                ...nuevaTarjeta,
+                                                                expiracion: e.target.value
+                                                            })
                                                         }
                                                     />
                                                 </div>
@@ -292,7 +297,7 @@ export default function Carrito() {
                                                         className="form-control"
                                                         value={nuevaTarjeta.cvv}
                                                         onChange={(e) =>
-                                                            setNuevaTarjeta({ ...nuevaTarjeta, cvv: e.target.value })
+                                                            setNuevaTarjeta({...nuevaTarjeta, cvv: e.target.value})
                                                         }
                                                     />
                                                 </div>
@@ -302,7 +307,7 @@ export default function Carrito() {
                                                         className="form-select"
                                                         value={nuevaTarjeta.tipo}
                                                         onChange={(e) =>
-                                                            setNuevaTarjeta({ ...nuevaTarjeta, tipo: e.target.value })
+                                                            setNuevaTarjeta({...nuevaTarjeta, tipo: e.target.value})
                                                         }
                                                     >
                                                         <option value="VISA">VISA</option>

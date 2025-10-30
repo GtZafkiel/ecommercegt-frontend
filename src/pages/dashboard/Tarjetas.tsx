@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import api from "../../services/api";
 
 export default function Tarjetas() {
@@ -19,7 +19,11 @@ export default function Tarjetas() {
     // ============================================================
     // Cargar tarjetas
     // ============================================================
-    const cargarTarjetas = async () => {
+    const cargarTarjetas = useCallback(async () => {
+        if (!user?.usuarioId) {
+            setError("Usuario no identificado. Inicia sesión nuevamente.");
+            return;
+        }
         setLoading(true);
         try {
             const res = await api.get(`/tarjetas/usuario/${user.usuarioId}`);
@@ -29,15 +33,11 @@ export default function Tarjetas() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user?.usuarioId]); // dependencia agregada correctamente
 
     useEffect(() => {
-        if (user?.usuarioId) {
-            cargarTarjetas();
-        } else {
-            setError("Usuario no identificado. Inicia sesión nuevamente.");
-        }
-    }, []);
+        cargarTarjetas();
+    }, [cargarTarjetas]);
 
     // ============================================================
     // Manejadores de formulario
