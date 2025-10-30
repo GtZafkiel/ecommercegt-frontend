@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { crearProducto } from "../../services/api";
+import api, { crearProducto } from "../../services/api";
 
 export default function NuevoProducto() {
     const navigate = useNavigate();
@@ -21,22 +21,21 @@ export default function NuevoProducto() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
+    // Se usa para obtener las categorías desde el backend
     useEffect(() => {
-        fetch("http://localhost:8080/api/categorias")
-            .then((res) => res.json())
-            .then((data) => setCategorias(data))
+        api.get("/categorias")
+            .then((res) => setCategorias(res.data))
             .catch(() => setCategorias([]));
     }, []);
 
     const handleChange = (
-        e: React.ChangeEvent<
-            HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-        >
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
     };
 
+    // Se usa para crear un nuevo producto
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);

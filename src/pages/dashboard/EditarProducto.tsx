@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getProductosByUser, actualizarProducto } from "../../services/api";
+import api, { getProductosByUser, actualizarProducto } from "../../services/api";
 
 export default function EditarProducto() {
     const navigate = useNavigate();
@@ -23,13 +23,14 @@ export default function EditarProducto() {
     const [loading, setLoading] = useState(false);
     const [cargandoProducto, setCargandoProducto] = useState(true);
 
+    // Se usa para obtener la lista de categorías desde el backend
     useEffect(() => {
-        fetch("http://localhost:8080/api/categorias")
-            .then((res) => res.json())
-            .then((data) => setCategorias(data))
+        api.get("/categorias")
+            .then((res) => setCategorias(res.data))
             .catch(() => setCategorias([]));
     }, []);
 
+    // Se usa para cargar el producto que se va a editar
     useEffect(() => {
         const cargarProducto = async () => {
             try {
@@ -68,6 +69,7 @@ export default function EditarProducto() {
         setFormData({ ...formData, [name]: value });
     };
 
+    // Se usa para enviar los cambios del producto al backend
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
