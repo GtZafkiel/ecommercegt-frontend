@@ -39,7 +39,6 @@ export default function Register() {
 
             const response = await api.post("/auth/register", payload);
 
-            // Mostrar el mensaje que devuelva exactamente el backend
             const msg =
                 typeof response.data === "string"
                     ? response.data

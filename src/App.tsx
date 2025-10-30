@@ -31,7 +31,10 @@ import PedidosLogistica from "./pages/dashboard/PedidosLogistica";
 
 // ==== Administrador ====
 import AdminPanel from "./pages/dashboard/AdminPanel";
+import AdminUsuarios from "./pages/dashboard/AdminUsuarios";
+import AdminUsuarioForm from "./pages/dashboard/AdminUsuarioForm";
 import DashboardRedirect from "./pages/dashboard/DashboardRedirect";
+
 
 const router = createBrowserRouter([
     { path: "/", element: <Home /> },
@@ -71,6 +74,10 @@ const router = createBrowserRouter([
 
                     // ==== Administrador ====
                     { path: "admin", element: <AdminPanel /> },
+                    { path: "admin/usuarios", element: <AdminUsuarios /> },
+                    { path: "admin/usuarios/nuevo", element: <AdminUsuarioForm mode="create" /> },
+                    { path: "admin/usuarios/editar/:usuarioId", element: <AdminUsuarioForm mode="edit" /> },
+
                 ],
             },
         ],

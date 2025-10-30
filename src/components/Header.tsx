@@ -9,155 +9,147 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
     return (
-        <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-3">
-            <Link className="navbar-brand fw-bold text-white" to="/dashboard">
-                eCommerce GT
-            </Link>
+        <nav className="navbar navbar-expand-lg navbar-dark bg-success shadow-sm px-4 py-2">
+            {/* ===== IZQUIERDA: Logo ===== */}
+            <div className="d-flex align-items-center">
+                <Link className="navbar-brand fw-bold fs-5 text-white d-flex align-items-center" to="/dashboard">
+                    <i className="bi bi-bag-check-fill me-2 fs-4"></i>
+                    eCommerce GT
+                </Link>
+            </div>
 
+            {/* ===== Botón Responsive ===== */}
             <button
                 className="navbar-toggler"
                 type="button"
                 data-bs-toggle="collapse"
-                data-bs-target="#navbarNav"
+                data-bs-target="#navbarMain"
+                aria-controls="navbarMain"
+                aria-expanded="false"
             >
                 <span className="navbar-toggler-icon"></span>
             </button>
 
-            <div className="collapse navbar-collapse" id="navbarNav">
-                <ul className="navbar-nav me-auto">
-                    {/* Panel administrador */}
+            {/* ===== CENTRO: Menú ===== */}
+            <div className="collapse navbar-collapse justify-content-center" id="navbarMain">
+                <ul className="navbar-nav text-center">
+
+                    {/* ==== ADMIN ==== */}
                     {role === "ADMIN" && (
                         <>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/admin">
-                                    Panel Admin
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/admin/usuarios">
+                                    <i className="bi bi-person-plus-fill"></i> Crear Usuarios
                                 </Link>
                             </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/reportes">
-                                    Reportes
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/reportes">
+                                    <i className="bi bi-bar-chart-fill"></i> Reportes
                                 </Link>
                             </li>
                         </>
                     )}
 
-                    {/* Panel moderador */}
+                    {/* ==== MODERADOR ==== */}
                     {role === "MODERADOR" && (
                         <>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/moderador/solicitudes">
-                                    Solicitudes
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/moderador/solicitudes">
+                                    <i className="bi bi-card-checklist"></i> Solicitudes
                                 </Link>
                             </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/moderador/sanciones">
-                                    Sanciones
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/moderador/sanciones">
+                                    <i className="bi bi-shield-exclamation"></i> Sanciones
                                 </Link>
                             </li>
                         </>
                     )}
 
-                    {/* Panel logística */}
+                    {/* ==== LOGÍSTICA ==== */}
                     {role === "LOGISTICA" && (
-                        <>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/logistica">
-                                    Pedidos en Curso
-                                </Link>
-                            </li>
-                        </>
+                        <li className="nav-item mx-2">
+                            <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/logistica/pedidos">
+                                <i className="bi bi-truck"></i> Pedidos en Curso
+                            </Link>
+                        </li>
                     )}
 
-                    {/* Panel usuario común */}
+                    {/* ==== COMÚN ==== */}
                     {role === "COMUN" && (
                         <>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard">
-                                    Inicio
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/tienda">
+                                    <i className="bi bi-shop"></i> Tienda
                                 </Link>
                             </li>
 
-                            {/* Dropdown de productos */}
-                            <li className="nav-item dropdown">
+                            <li className="nav-item dropdown mx-2">
                                 <a
-                                    className="nav-link dropdown-toggle"
+                                    className="nav-link dropdown-toggle d-flex align-items-center gap-1"
                                     href="#"
                                     id="productosDropdown"
                                     role="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                 >
-                                    Mis Productos
+                                    <i className="bi bi-box-seam"></i> Mis Productos
                                 </a>
-                                <ul className="dropdown-menu" aria-labelledby="productosDropdown">
+                                <ul className="dropdown-menu text-center" aria-labelledby="productosDropdown">
                                     <li>
-                                        <Link className="dropdown-item" to="/dashboard/mis-productos">
-                                            Mis Publicaciones
+                                        <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/mis-productos">
+                                            <i className="bi bi-collection"></i> Mis Publicaciones
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link
-                                            className="dropdown-item"
-                                            to="/dashboard/mis-productos/nuevo"
-                                        >
-                                            Publicar Producto
+                                        <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/mis-productos/nuevo">
+                                            <i className="bi bi-plus-square"></i> Publicar Producto
                                         </Link>
                                     </li>
                                 </ul>
                             </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/tienda">
-                                    Tienda
+
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/carrito">
+                                    <i className="bi bi-cart4"></i> Carrito
+                                </Link>
+                            </li>
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/pedidos">
+                                    <i className="bi bi-receipt"></i> Mis Pedidos
+                                </Link>
+                            </li>
+                            <li className="nav-item mx-2">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/mis-compras">
+                                    <i className="bi bi-bag-heart"></i> Mis Compras
                                 </Link>
                             </li>
 
-
-                            {/* Carrito */}
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/carrito">
-                                    Carrito
-                                </Link>
-                            </li>
-
-                            {/* Pedidos */}
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/pedidos">
-                                    Mis Pedidos
-                                </Link>
-                            </li>
-                            <li className="nav-item">
-                                <Link className="nav-link" to="/dashboard/mis-compras">
-                                    Mis Compras
-                                </Link>
-                            </li>
-
-
-                            {/* Dropdown de cuenta */}
-                            <li className="nav-item dropdown">
+                            <li className="nav-item dropdown mx-2">
                                 <a
-                                    className="nav-link dropdown-toggle"
+                                    className="nav-link dropdown-toggle d-flex align-items-center gap-1"
                                     href="#"
                                     id="cuentaDropdown"
                                     role="button"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
                                 >
-                                    Cuenta
+                                    <i className="bi bi-person-circle"></i> Cuenta
                                 </a>
-                                <ul className="dropdown-menu" aria-labelledby="cuentaDropdown">
+                                <ul className="dropdown-menu text-center" aria-labelledby="cuentaDropdown">
                                     <li>
-                                        <Link className="dropdown-item" to="/dashboard/tarjetas">
-                                            Mis Tarjetas
+                                        <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/tarjetas">
+                                            <i className="bi bi-credit-card-2-front"></i> Mis Tarjetas
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link className="dropdown-item" to="/dashboard/resenas">
-                                            Mis Reseñas
+                                        <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/resenas">
+                                            <i className="bi bi-chat-left-heart"></i> Mis Reseñas
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link className="dropdown-item" to="/dashboard/perfil">
-                                            Configuración
+                                        <Link className="dropdown-item d-flex align-items-center gap-1" to="/dashboard/perfil">
+                                            <i className="bi bi-gear"></i> Configuración
                                         </Link>
                                     </li>
                                 </ul>
@@ -165,15 +157,24 @@ const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
                         </>
                     )}
                 </ul>
+            </div>
 
-                {/* Sección derecha: nombre, rol y botón */}
-                <div className="d-flex flex-column align-items-end text-white me-3">
-                    <span className="fw-semibold">{name || "Usuario"}</span>
-                    <small className="text-secondary">Rol: {role}</small>
+            {/* ===== DERECHA: Usuario y Botón ===== */}
+            <div className="d-flex align-items-center ms-auto">
+                <div className="text-end me-3">
+                    <div className="fw-semibold text-white small d-flex align-items-center justify-content-end">
+                        <i className="bi bi-person-fill me-1"></i> {name || "Usuario"}
+                    </div>
+                    <div className="text-white-50 small">
+                        <i className="bi bi-shield-lock me-1"></i> Rol: {role}
+                    </div>
                 </div>
 
-                <button className="btn btn-outline-light btn-sm" onClick={onLogout}>
-                    Cerrar sesión
+                <button
+                    onClick={onLogout}
+                    className="btn btn-light btn-sm fw-semibold d-flex align-items-center px-3"
+                >
+                    <i className="bi bi-box-arrow-right me-1"></i> Salir
                 </button>
             </div>
         </nav>

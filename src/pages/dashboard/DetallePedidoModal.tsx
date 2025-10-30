@@ -1,81 +1,81 @@
 import React, { useEffect, useState } from "react";
 import api from "../../services/api";
 
+interface Producto {
+    nombre: string;
+}
+
 interface Detalle {
-    detalleId: number;
-    producto: {
-        nombre: string;
-        imagenUrl?: string;
-        precio: number;
-    };
+    producto: Producto;
     cantidad: number;
-    precio: number;
+    precioUnit: number;
     subtotal: number;
+}
+
+interface Venta {
+    ventaId: number;
+    metodoPago: string;
+    detalles: Detalle[];
 }
 
 interface Pedido {
     pedidoId: number;
     fechaEnvio: string;
-    fechaEntrega?: string;
+    fechaEntrega?: string | null;
     estado: string;
     total: number;
+    venta?: Venta;
 }
 
 interface Props {
-    pedido: Pedido | null;
+    pedido: Pedido;
     onClose: () => void;
 }
 
 export default function DetallePedidoModal({ pedido, onClose }: Props) {
     const [detalles, setDetalles] = useState<Detalle[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (pedido) cargarDetalles(pedido.pedidoId);
-    }, [pedido]);
+        cargarDetalle();
+    }, []);
 
-    async function cargarDetalles(pedidoId: number) {
-        setLoading(true);
+    const cargarDetalle = async () => {
         try {
-            const res = await api.get(`/pedidos/${pedidoId}/detalles`);
-            setDetalles(res.data);
-        } catch (err) {
-            console.error("Error al cargar los detalles del pedido:", err);
+            const res = await api.get(`/pedidos/${pedido.pedidoId}/detalle`);
+            setDetalles(res.data.venta.detalles || []);
+        } catch {
+            setDetalles([]);
         } finally {
             setLoading(false);
         }
-    }
-
-    if (!pedido) return null;
+    };
 
     return (
         <div
-            className="modal fade show d-block"
-            tabIndex={-1}
-            style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+            className="modal fade show"
+            style={{ display: "block", backgroundColor: "rgba(0,0,0,0.5)" }}
         >
-            <div className="modal-dialog modal-lg modal-dialog-centered">
+            <div className="modal-dialog modal-lg">
                 <div className="modal-content">
-                    <div className="modal-header bg-dark text-white">
+                    <div className="modal-header">
                         <h5 className="modal-title">
                             Detalle del Pedido #{pedido.pedidoId}
                         </h5>
-                        <button
-                            type="button"
-                            className="btn-close btn-close-white"
-                            onClick={onClose}
-                        ></button>
+                        <button className="btn-close" onClick={onClose}></button>
                     </div>
                     <div className="modal-body">
                         <p>
                             <strong>Fecha de Envío:</strong>{" "}
                             {new Date(pedido.fechaEnvio).toLocaleDateString()}
-                            <br />
+                        </p>
+                        <p>
                             <strong>Fecha de Entrega:</strong>{" "}
                             {pedido.fechaEntrega
                                 ? new Date(pedido.fechaEntrega).toLocaleDateString()
                                 : "Pendiente"}
-                            <br />
+                        </p>
+                        <p>
                             <strong>Estado:</strong>{" "}
                             <span
                                 className={`badge ${
@@ -84,49 +84,31 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
                                         : "bg-warning text-dark"
                                 }`}
                             >
-                {pedido.estado}
-              </span>
+                                {pedido.estado}
+                            </span>
                         </p>
 
                         {loading ? (
-                            <div className="text-center py-4">
+                            <div className="text-center">
                                 <div className="spinner-border text-primary"></div>
                             </div>
                         ) : detalles.length > 0 ? (
-                            <table className="table table-bordered align-middle">
-                                <thead className="table-dark text-center">
+                            <table className="table table-bordered align-middle text-center">
+                                <thead className="table-secondary">
                                 <tr>
                                     <th>Producto</th>
                                     <th>Cantidad</th>
-                                    <th>Precio (Q)</th>
-                                    <th>Subtotal (Q)</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Subtotal</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                {detalles.map((d) => (
-                                    <tr key={d.detalleId}>
-                                        <td>
-                                            {d.producto.imagenUrl && (
-                                                <img
-                                                    src={d.producto.imagenUrl}
-                                                    alt={d.producto.nombre}
-                                                    className="me-2 rounded"
-                                                    style={{
-                                                        width: "40px",
-                                                        height: "40px",
-                                                        objectFit: "cover",
-                                                    }}
-                                                />
-                                            )}
-                                            {d.producto.nombre}
-                                        </td>
-                                        <td className="text-center">{d.cantidad}</td>
-                                        <td className="text-end">
-                                            Q{d.precio.toFixed(2)}
-                                        </td>
-                                        <td className="text-end fw-bold">
-                                            Q{d.subtotal.toFixed(2)}
-                                        </td>
+                                {detalles.map((d, i) => (
+                                    <tr key={i}>
+                                        <td>{d.producto?.nombre}</td>
+                                        <td>{d.cantidad}</td>
+                                        <td>Q{d.precioUnit.toFixed(2)}</td>
+                                        <td>Q{d.subtotal.toFixed(2)}</td>
                                     </tr>
                                 ))}
                                 </tbody>
@@ -136,9 +118,8 @@ export default function DetallePedidoModal({ pedido, onClose }: Props) {
                         )}
 
                         <div className="text-end mt-3">
-                            <h5 className="fw-bold">
-                                Total: Q{pedido.total.toFixed(2)}
-                            </h5>
+                            <strong>Total:</strong>{" "}
+                            <span className="fw-bold">Q{pedido.total.toFixed(2)}</span>
                         </div>
                     </div>
                     <div className="modal-footer">

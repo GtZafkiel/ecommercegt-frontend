@@ -5,7 +5,7 @@ import DetallePedidoModal from "./DetallePedidoModal";
 interface Pedido {
     pedidoId: number;
     fechaEnvio: string;
-    fechaEntrega?: string;
+    fechaEntrega?: string | null;
     estado: string;
     total: number;
 }
@@ -23,6 +23,8 @@ export default function Pedidos() {
         setLoading(true);
         try {
             const user = JSON.parse(localStorage.getItem("user") || "{}");
+            if (!user?.usuarioId) return;
+
             const res = await api.get(`/pedidos/usuario/${user.usuarioId}`);
             setPedidos(res.data);
         } catch (err) {
@@ -32,17 +34,30 @@ export default function Pedidos() {
         }
     }
 
+    // ============================================
+    // Formatear fechas al estilo dd/mm/yyyy
+    // ============================================
+    const formatearFecha = (fecha?: string | null) => {
+        if (!fecha) return "Pendiente";
+        const d = new Date(fecha);
+        return d.toLocaleDateString("es-GT", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+    };
+
     return (
         <div className="container mt-4">
             <h3 className="mb-3">Mis Pedidos</h3>
 
             {loading ? (
                 <div className="text-center py-4">
-                    <div className="spinner-border text-primary"></div>
+                    <div className="spinner-border text-primary" role="status"></div>
                 </div>
             ) : pedidos.length > 0 ? (
-                <table className="table table-striped table-hover align-middle">
-                    <thead className="table-dark text-center">
+                <table className="table table-striped table-hover align-middle text-center">
+                    <thead className="table-dark">
                     <tr>
                         <th>ID</th>
                         <th>Fecha Envío</th>
@@ -55,14 +70,10 @@ export default function Pedidos() {
                     <tbody>
                     {pedidos.map((p) => (
                         <tr key={p.pedidoId}>
-                            <td className="text-center">{p.pedidoId}</td>
-                            <td>{new Date(p.fechaEnvio).toLocaleDateString()}</td>
+                            <td>{p.pedidoId}</td>
+                            <td>{formatearFecha(p.fechaEnvio)}</td>
+                            <td>{formatearFecha(p.fechaEntrega)}</td>
                             <td>
-                                {p.fechaEntrega
-                                    ? new Date(p.fechaEntrega).toLocaleDateString()
-                                    : "Pendiente"}
-                            </td>
-                            <td className="text-center">
                   <span
                       className={`badge ${
                           p.estado === "ENTREGADO"
@@ -73,8 +84,8 @@ export default function Pedidos() {
                     {p.estado}
                   </span>
                             </td>
-                            <td className="text-end fw-bold">Q{p.total.toFixed(2)}</td>
-                            <td className="text-center">
+                            <td className="fw-bold">Q{p.total.toFixed(2)}</td>
+                            <td>
                                 <button
                                     className="btn btn-sm btn-primary"
                                     onClick={() => setPedidoSeleccionado(p)}

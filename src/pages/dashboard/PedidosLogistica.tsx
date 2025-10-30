@@ -25,7 +25,7 @@ export default function PedidosLogistica() {
     const [nuevaFecha, setNuevaFecha] = useState<string>("");
 
     // ============================================================
-    // Se usa para cargar todos los pedidos en curso
+    // Cargar pedidos en curso desde /api/pedidos/en-curso
     // ============================================================
     const cargarPedidos = async () => {
         setLoading(true);
@@ -45,13 +45,27 @@ export default function PedidosLogistica() {
     }, []);
 
     // ============================================================
-    // Se usa para actualizar la fecha de entrega del pedido
+    // Función auxiliar para formatear fechas legibles
+    // ============================================================
+    const formatearFecha = (fecha: string | null) => {
+        if (!fecha) return "Sin definir";
+        const d = new Date(fecha);
+        return d.toLocaleDateString("es-GT", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+        });
+    };
+
+    // ============================================================
+    // Actualizar fecha de entrega
     // ============================================================
     const actualizarFecha = async () => {
         if (!pedidoSeleccionado || !nuevaFecha) return;
+
         try {
-            await api.put(`/pedidos/${pedidoSeleccionado.pedidoId}/fecha`, {
-                fecha_entrega: nuevaFecha,
+            await api.put(`/pedidos/actualizar-fecha/${pedidoSeleccionado.pedidoId}`, {
+                fechaEntrega: nuevaFecha,
             });
             setMensaje("Fecha de entrega actualizada correctamente.");
             setPedidoSeleccionado(null);
@@ -63,12 +77,12 @@ export default function PedidosLogistica() {
     };
 
     // ============================================================
-    // Se usa para marcar el pedido como entregado
+    // Marcar pedido como ENTREGADO
     // ============================================================
     const marcarEntregado = async (pedidoId: number) => {
         try {
-            await api.put(`/pedidos/${pedidoId}/estado?estado=ENTREGADO`);
-            setMensaje("Pedido marcado como entregado.");
+            await api.put(`/pedidos/entregar/${pedidoId}`);
+            setMensaje("Pedido marcado como entregado correctamente.");
             cargarPedidos();
         } catch {
             setError("Error al actualizar el estado del pedido.");
@@ -111,18 +125,18 @@ export default function PedidosLogistica() {
                                     <td>{p.pedidoId}</td>
                                     <td>{p.venta.usuario.username}</td>
                                     <td>{p.venta.total.toFixed(2)}</td>
-                                    <td>{p.fechaEnvio}</td>
-                                    <td>{p.fechaEntrega || "Sin definir"}</td>
+                                    <td>{formatearFecha(p.fechaEnvio)}</td>
+                                    <td>{formatearFecha(p.fechaEntrega)}</td>
                                     <td>
-                      <span
-                          className={`badge ${
-                              p.estado === "EN_CURSO"
-                                  ? "bg-warning text-dark"
-                                  : "bg-success"
-                          }`}
-                      >
-                        {p.estado}
-                      </span>
+                                            <span
+                                                className={`badge ${
+                                                    p.estado === "EN_CURSO"
+                                                        ? "bg-warning text-dark"
+                                                        : "bg-success"
+                                                }`}
+                                            >
+                                                {p.estado}
+                                            </span>
                                     </td>
                                     <td>
                                         <button
