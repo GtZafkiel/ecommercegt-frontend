@@ -2,6 +2,9 @@ import axios from "axios";
 
 export const api = axios.create({
     baseURL: "https://liberalistic-marilou-overblindly.ngrok-free.dev/api",
+    headers: {
+        "ngrok-skip-browser-warning": "true",
+    },
 });
 
 // === PRODUCTOS ===
