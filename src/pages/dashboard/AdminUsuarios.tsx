@@ -7,7 +7,12 @@ interface Empleado {
     usuarioId: number;
     username: string;
     email: string;
-    role: "ADMIN" | "MODERADOR" | "LOGISTICA";
+    role: {
+        role_id: number;
+        code: string;
+        name: string;
+        description: string;
+    };
     estado: "ACTIVO" | "SUSPENDIDO";
     createdAt?: string;
 }
@@ -18,6 +23,8 @@ export default function AdminUsuarios() {
     const [mensaje, setMensaje] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const [usuariosComunes, setUsuariosComunes] = useState<Empleado[]>([]);
+
 
     // Se usa para cargar la lista de empleados
     const cargarEmpleados = async () => {
@@ -32,6 +39,16 @@ export default function AdminUsuarios() {
             setLoading(false);
         }
     };
+    // Se usa para cargar los usuarios comunes
+    const cargarUsuariosComunes = async () => {
+        try {
+            const res = await api.get("/admin/empleados/comunes");
+            setUsuariosComunes(res.data || []);
+        } catch {
+            console.error("No se pudieron cargar los usuarios comunes");
+        }
+    };
+
 
     // Se usa para cambiar el estado ACTIVO/SUSPENDIDO
     const cambiarEstado = async (usuarioId: number, estado: "ACTIVO" | "SUSPENDIDO") => {
@@ -50,6 +67,7 @@ export default function AdminUsuarios() {
 
     useEffect(() => {
         cargarEmpleados();
+        cargarUsuariosComunes();
     }, []);
 
     return (
@@ -68,8 +86,8 @@ export default function AdminUsuarios() {
             <div className="card shadow-sm">
                 <div className="card-body">
                     <div className="table-responsive">
-                        <table className="table table-hover align-middle">
-                            <thead className="table-light">
+                        <table className="table table-striped table-hover align-middle text-center">
+                            <thead className="table-dark">
                             <tr>
                                 <th>#</th>
                                 <th>Usuario</th>
@@ -90,7 +108,7 @@ export default function AdminUsuarios() {
                                         <td>{idx + 1}</td>
                                         <td>{emp.username}</td>
                                         <td>{emp.email}</td>
-                                        <td><span className="badge bg-primary">{emp.role}</span></td>
+                                        <td><span className="badge bg-primary">{emp.role?.name || "—"}</span></td>
                                         <td>
                         <span className={`badge ${emp.estado === "ACTIVO" ? "bg-success" : "bg-secondary"}`}>
                           {emp.estado}
@@ -99,15 +117,20 @@ export default function AdminUsuarios() {
                                         <td className="text-end">
                                             <div className="btn-group">
                                                 <button
-                                                    className={`btn btn-sm ${emp.estado === "ACTIVO" ? "btn-outline-secondary" : "btn-outline-success"}`}
+                                                    className={`btn btn-sm d-none ${emp.estado === "ACTIVO" ? "btn-outline-secondary" : "btn-outline-success"}`}
                                                     onClick={() => cambiarEstado(emp.usuarioId, emp.estado === "ACTIVO" ? "SUSPENDIDO" : "ACTIVO")}
                                                 >
                                                     {emp.estado === "ACTIVO" ? (
-                                                        <><i className="bi bi-slash-circle me-1" />Suspender</>
+                                                        <>
+                                                            <i className="bi bi-slash-circle me-1" /> Suspender
+                                                        </>
                                                     ) : (
-                                                        <><i className="bi bi-check2-circle me-1" />Activar</>
+                                                        <>
+                                                            <i className="bi bi-check2-circle me-1" /> Activar
+                                                        </>
                                                     )}
                                                 </button>
+
 
                                                 <button
                                                     className="btn btn-sm btn-outline-primary"
@@ -125,11 +148,79 @@ export default function AdminUsuarios() {
                         </table>
                     </div>
 
-                    <small className="text-muted">
-                        Se usa para visualizar, activar, suspender y editar empleados.
-                    </small>
                 </div>
             </div>
+
+            <div className="mt-5">
+                <h4 className="mb-3">Gestión de Usuarios Comunes</h4>
+
+                <div className="card shadow-sm">
+                    <div className="card-body">
+                        <div className="table-responsive">
+                            <table className="table table-striped table-hover align-middle text-center">
+                                <thead className="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                    <th className="text-end">Acciones</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {usuariosComunes.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="text-center">Sin registros</td>
+                                    </tr>
+                                ) : (
+                                    usuariosComunes.map((u, i) => (
+                                        <tr key={u.usuarioId}>
+                                            <td>{i + 1}</td>
+                                            <td>{u.username}</td>
+                                            <td>{u.email}</td>
+                                            <td>
+                                                <span className="badge bg-secondary">{u.role?.name || "—"}</span>
+                                            </td>
+                                            <td>
+                    <span className={`badge ${u.estado === "ACTIVO" ? "bg-success" : "bg-secondary"}`}>
+                      {u.estado}
+                    </span>
+                                            </td>
+                                            <td className="text-end">
+                                                <div className="btn-group">
+                                                    <button
+                                                        className={`btn btn-sm d-none ${u.estado === "ACTIVO" ? "btn-outline-secondary" : "btn-outline-success"}`}
+                                                        onClick={() => cambiarEstado(u.usuarioId, u.estado === "ACTIVO" ? "SUSPENDIDO" : "ACTIVO")}
+                                                    >
+                                                        {u.estado === "ACTIVO" ? (
+                                                            <>
+                                                                <i className="bi bi-slash-circle me-1" /> Suspender
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <i className="bi bi-check2-circle me-1" /> Activar
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-outline-primary"
+                                                        onClick={() => navigate(`/dashboard/admin/usuarios/editar/${u.usuarioId}`)}
+                                                    >
+                                                        <i className="bi bi-pencil-square me-1" /> Editar
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     );
 }

@@ -12,7 +12,7 @@ interface EmpleadoForm {
     username: string;
     email: string;
     password?: string;
-    role: "ADMIN" | "MODERADOR" | "LOGISTICA";
+    roleId: number; //
     estado: "ACTIVO" | "SUSPENDIDO";
 }
 
@@ -25,9 +25,10 @@ export default function AdminUsuarioForm({ mode }: Props) {
         username: "",
         email: "",
         password: "",
-        role: "MODERADOR",
+        roleId: 2, // por defecto MODERADOR
         estado: "ACTIVO",
     });
+
     const [loading, setLoading] = useState(false);
     const [mensaje, setMensaje] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -40,10 +41,11 @@ export default function AdminUsuarioForm({ mode }: Props) {
             setError(null);
             const res = await api.get(`/admin/empleados/${usuarioId}`);
             const data = res.data;
+
             setForm({
                 username: data.username || "",
                 email: data.email || "",
-                role: data.role || "MODERADOR",
+                roleId: data.role?.role_id || 2,
                 estado: data.estado || "ACTIVO",
             });
         } catch {
@@ -60,7 +62,10 @@ export default function AdminUsuarioForm({ mode }: Props) {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setForm(prev => ({ ...prev, [name]: value }));
+        setForm(prev => ({
+            ...prev,
+            [name]: name === "roleId" ? parseInt(value) : value,
+        }));
     };
 
     // Se usa para crear o actualizar el empleado
@@ -72,33 +77,33 @@ export default function AdminUsuarioForm({ mode }: Props) {
         try {
             setLoading(true);
 
+            const payload = {
+                username: form.username,
+                email: form.email,
+                password: form.password,
+                estado: form.estado,
+                roleId: form.roleId,
+            };
+
+
+            console.log("Payload enviado al backend:", JSON.stringify(payload, null, 2));
+
             if (isEdit && usuarioId) {
-                await api.put(`/admin/empleados/${usuarioId}`, {
-                    username: form.username,
-                    email: form.email,
-                    role: form.role,
-                    estado: form.estado,
-                    ...(form.password ? { passwordHash: form.password } : {}),
-                });
+                await api.put(`/admin/empleados/${usuarioId}`, payload);
                 setMensaje("Empleado actualizado correctamente");
             } else {
-                await api.post("/admin/empleados", {
-                    username: form.username,
-                    email: form.email,
-                    role: form.role,
-                    estado: form.estado,
-                    passwordHash: form.password,
-                });
+                await api.post("/admin/empleados", payload);
                 setMensaje("Empleado creado correctamente");
             }
 
             setTimeout(() => navigate("/dashboard/admin/usuarios", { replace: true }), 1000);
-        } catch (e: any) {
+        } catch {
             setError("No se pudo guardar la información del empleado");
         } finally {
             setLoading(false);
         }
     };
+
 
     return (
         <div className="container py-4">
@@ -115,7 +120,7 @@ export default function AdminUsuarioForm({ mode }: Props) {
             <div className="card shadow-sm">
                 <div className="card-body">
                     <form onSubmit={handleSubmit}>
-                        {/* Se usa para editar el nombre de usuario */}
+                        {/* Usuario */}
                         <div className="mb-3">
                             <label className="form-label">Usuario</label>
                             <input
@@ -129,7 +134,7 @@ export default function AdminUsuarioForm({ mode }: Props) {
                             />
                         </div>
 
-                        {/* Se usa para editar el correo */}
+                        {/* Email */}
                         <div className="mb-3">
                             <label className="form-label">Email</label>
                             <input
@@ -142,30 +147,43 @@ export default function AdminUsuarioForm({ mode }: Props) {
                             />
                         </div>
 
-                        {/* Se usa para seleccionar el rol */}
+                        {/* Rol y Estado */}
                         <div className="row">
                             <div className="mb-3 col-12 col-md-6">
                                 <label className="form-label">Rol</label>
-                                <select className="form-select" name="role" value={form.role} onChange={handleChange} required>
-                                    <option value="ADMIN">ADMIN</option>
-                                    <option value="MODERADOR">MODERADOR</option>
-                                    <option value="LOGISTICA">LOGISTICA</option>
+                                <select
+                                    className="form-select"
+                                    name="roleId"
+                                    value={form.roleId}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value={1}>ADMIN</option>
+                                    <option value={2}>MODERADOR</option>
+                                    <option value={3}>LOGISTICA</option>
                                 </select>
                             </div>
 
-                            {/* Se usa para seleccionar el estado */}
                             <div className="mb-3 col-12 col-md-6">
                                 <label className="form-label">Estado</label>
-                                <select className="form-select" name="estado" value={form.estado} onChange={handleChange} required>
+                                <select
+                                    className="form-select"
+                                    name="estado"
+                                    value={form.estado}
+                                    onChange={handleChange}
+                                    required
+                                >
                                     <option value="ACTIVO">ACTIVO</option>
                                     <option value="SUSPENDIDO">SUSPENDIDO</option>
                                 </select>
                             </div>
                         </div>
 
-                        {/* Se usa para registrar la contraseña al crear o resetear en edición */}
+                        {/* Contraseña */}
                         <div className="mb-3">
-                            <label className="form-label">{isEdit ? "Nueva contraseña (opcional)" : "Contraseña"}</label>
+                            <label className="form-label">
+                                {isEdit ? "Nueva contraseña (opcional)" : "Contraseña"}
+                            </label>
                             <input
                                 type="password"
                                 className="form-control"
@@ -178,7 +196,7 @@ export default function AdminUsuarioForm({ mode }: Props) {
                             <div className="form-text">
                                 {isEdit
                                     ? "Se usa para resetear la contraseña del empleado. Dejar vacío si no se desea cambiar."
-                                    : "Se usa para registrar la contraseña inicial del empleado."}
+                                    : ""}
                             </div>
                         </div>
 
@@ -186,15 +204,15 @@ export default function AdminUsuarioForm({ mode }: Props) {
                             <button type="submit" className="btn btn-success" disabled={loading}>
                                 {loading ? "Guardando..." : isEdit ? "Actualizar" : "Crear"}
                             </button>
-                            <button type="button" className="btn btn-outline-secondary" onClick={() => navigate("/dashboard/admin/usuarios")}>
+                            <button
+                                type="button"
+                                className="btn btn-outline-secondary"
+                                onClick={() => navigate("/dashboard/admin/usuarios")}
+                            >
                                 Cancelar
                             </button>
                         </div>
                     </form>
-
-                    <small className="text-muted d-block mt-3">
-                        Se usa para crear o actualizar empleados con roles ADMIN, MODERADOR y LOGISTICA.
-                    </small>
                 </div>
             </div>
         </div>

@@ -34,7 +34,7 @@ import AdminPanel from "./pages/dashboard/AdminPanel";
 import AdminUsuarios from "./pages/dashboard/AdminUsuarios";
 import AdminUsuarioForm from "./pages/dashboard/AdminUsuarioForm";
 import DashboardRedirect from "./pages/dashboard/DashboardRedirect";
-
+import AdminReportes from "./pages/dashboard/AdminReportes";
 
 const router = createBrowserRouter([
     { path: "/", element: <Home /> },
@@ -42,42 +42,64 @@ const router = createBrowserRouter([
     { path: "/register", element: <Register /> },
 
     {
-        element: <ProtectedRoute />,
+        element: <ProtectedRoute />, // Solo autenticados
         children: [
             {
                 path: "/dashboard",
                 element: <DashboardLayout />,
                 children: [
-                    // ==== Usuario Común ====
+                    // Redirección automática al panel correcto según el rol
                     { index: true, element: <DashboardRedirect /> },
-                    { path: "comun", element: <ComunPanel /> },
-                    { path: "mis-productos", element: <MisProductos /> },
-                    { path: "mis-productos/nuevo", element: <NuevoProducto /> },
-                    { path: "mis-productos/editar/:productoId", element: <EditarProducto /> },
-                    { path: "tienda", element: <Tienda /> },
-                    { path: "producto/:id", element: <DetalleProducto /> },
-                    { path: "carrito", element: <Carrito /> },
-                    { path: "tarjetas", element: <Tarjetas /> },
-                    { path: "mis-compras", element: <MisCompras /> },
-                    { path: "pedidos", element: <Pedidos /> },
-                    { path: "resenas", element: <Resenas /> },
-                    { path: "perfil", element: <Perfil /> },
+
+                    // ==== Usuario Común ====
+                    {
+                        element: <ProtectedRoute allowedRoles={["COMUN"]} />,
+                        children: [
+                            { path: "comun", element: <ComunPanel /> },
+                            { path: "mis-productos", element: <MisProductos /> },
+                            { path: "mis-productos/nuevo", element: <NuevoProducto /> },
+                            { path: "mis-productos/editar/:productoId", element: <EditarProducto /> },
+                            { path: "tienda", element: <Tienda /> },
+                            { path: "producto/:id", element: <DetalleProducto /> },
+                            { path: "carrito", element: <Carrito /> },
+                            { path: "tarjetas", element: <Tarjetas /> },
+                            { path: "mis-compras", element: <MisCompras /> },
+                            { path: "pedidos", element: <Pedidos /> },
+                            { path: "resenas", element: <Resenas /> },
+                            { path: "perfil", element: <Perfil /> },
+                        ],
+                    },
 
                     // ==== Moderador ====
-                    { path: "moderador", element: <ModeradorPanel /> },
-                    { path: "moderador/solicitudes", element: <SolicitudesProductos /> },
-                    { path: "moderador/sanciones", element: <Sanciones /> },
+                    {
+                        element: <ProtectedRoute allowedRoles={["MODERADOR"]} />,
+                        children: [
+                            { path: "moderador", element: <ModeradorPanel /> },
+                            { path: "moderador/solicitudes", element: <SolicitudesProductos /> },
+                            { path: "moderador/sanciones", element: <Sanciones /> },
+                        ],
+                    },
 
                     // ==== Logística ====
-                    { path: "logistica", element: <LogisticaPanel /> },
-                    { path: "logistica/pedidos", element: <PedidosLogistica /> },
+                    {
+                        element: <ProtectedRoute allowedRoles={["LOGISTICA"]} />,
+                        children: [
+                            { path: "logistica", element: <LogisticaPanel /> },
+                            { path: "logistica/pedidos", element: <PedidosLogistica /> },
+                        ],
+                    },
 
                     // ==== Administrador ====
-                    { path: "admin", element: <AdminPanel /> },
-                    { path: "admin/usuarios", element: <AdminUsuarios /> },
-                    { path: "admin/usuarios/nuevo", element: <AdminUsuarioForm mode="create" /> },
-                    { path: "admin/usuarios/editar/:usuarioId", element: <AdminUsuarioForm mode="edit" /> },
-
+                    {
+                        element: <ProtectedRoute allowedRoles={["ADMIN"]} />,
+                        children: [
+                            { path: "admin", element: <AdminPanel /> },
+                            { path: "admin/usuarios", element: <AdminUsuarios /> },
+                            { path: "admin/usuarios/nuevo", element: <AdminUsuarioForm mode="create" /> },
+                            { path: "admin/usuarios/editar/:usuarioId", element: <AdminUsuarioForm mode="edit" /> },
+                            { path: "admin/reportes", element: <AdminReportes /> },
+                        ],
+                    },
                 ],
             },
         ],

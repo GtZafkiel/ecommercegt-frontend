@@ -43,7 +43,7 @@ const Header: React.FC<HeaderProps> = ({ role, name, onLogout }) => {
                                 </Link>
                             </li>
                             <li className="nav-item mx-2">
-                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/reportes">
+                                <Link className="nav-link d-flex align-items-center gap-1" to="/dashboard/admin/reportes">
                                     <i className="bi bi-bar-chart-fill"></i> Reportes
                                 </Link>
                             </li>

@@ -14,27 +14,45 @@ export default function Sanciones() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // Se usa para obtener los usuarios comunes
+    // Estado del modal
+    const [mostrarModal, setMostrarModal] = useState<boolean>(false);
+    const [motivo, setMotivo] = useState<string>("");
+    const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<Usuario | null>(null);
+
+    // Cargar usuarios comunes
     const cargarUsuarios = async () => {
         setLoading(true);
         try {
             const res = await api.get("/moderador/usuarios");
             setUsuarios(res.data);
-        } catch (err) {
+        } catch {
             setError("Error al cargar usuarios comunes.");
         } finally {
             setLoading(false);
         }
     };
 
-    // Se usa para cambiar el estado del usuario
-    const cambiarEstado = async (id: number) => {
+    // Abrir modal con usuario seleccionado
+    const abrirModal = (usuario: Usuario) => {
+        setUsuarioSeleccionado(usuario);
+        setMotivo("");
+        setMostrarModal(true);
+    };
+
+    // Confirmar sanción
+    const confirmarCambio = async () => {
+        if (!usuarioSeleccionado) return;
+
         try {
-            const res = await api.put(`/moderador/usuarios/${id}/estado`);
+            const res = await api.post(
+                `/moderador/usuarios/${usuarioSeleccionado.usuarioId}/sancion`,
+                { motivo }
+            );
             setMensaje(res.data);
-            cargarUsuarios();
-        } catch (err) {
-            setError("Error al cambiar el estado del usuario.");
+            setMostrarModal(false);
+            await cargarUsuarios();
+        } catch {
+            setError("Error al aplicar la sanción.");
         }
     };
 
@@ -68,33 +86,89 @@ export default function Sanciones() {
                             <td>{u.username}</td>
                             <td>{u.email}</td>
                             <td>
-                  <span
-                      className={`badge ${
-                          u.estado === "ACTIVO" ? "bg-success" : "bg-danger"
-                      }`}
-                  >
-                    {u.estado}
-                  </span>
+                                    <span
+                                        className={`badge ${
+                                            u.estado === "ACTIVO"
+                                                ? "bg-success"
+                                                : "bg-danger"
+                                        }`}
+                                    >
+                                        {u.estado}
+                                    </span>
                             </td>
                             <td>
                                 <button
                                     className={`btn ${
-                                        u.estado === "ACTIVO" ? "btn-warning" : "btn-success"
+                                        u.estado === "ACTIVO"
+                                            ? "btn-warning"
+                                            : "btn-success"
                                     } btn-sm`}
-                                    onClick={() => cambiarEstado(u.usuarioId)}
+                                    onClick={() => abrirModal(u)}
                                 >
-                                    {u.estado === "ACTIVO" ? "Suspender" : "Reactivar"}
+                                    {u.estado === "ACTIVO"
+                                        ? "Suspender"
+                                        : "Reactivar"}
                                 </button>
                             </td>
                         </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={5}>No hay usuarios comunes registrados.</td>
+                        <td colSpan={5}>
+                            No hay usuarios comunes registrados.
+                        </td>
                     </tr>
                 )}
                 </tbody>
             </table>
+
+            {/* Modal controlado por React */}
+            {mostrarModal && (
+                <div
+                    className="modal fade show"
+                    style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
+                >
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content shadow">
+                            <div className="modal-header">
+                                <h5 className="modal-title">
+                                    {usuarioSeleccionado?.estado === "ACTIVO"
+                                        ? "Motivo de suspensión"
+                                        : "Motivo de reactivación"}
+                                </h5>
+                                <button
+                                    className="btn-close"
+                                    onClick={() => setMostrarModal(false)}
+                                ></button>
+                            </div>
+                            <div className="modal-body">
+                                <textarea
+                                    className="form-control"
+                                    rows={3}
+                                    placeholder="Escriba el motivo..."
+                                    value={motivo}
+                                    onChange={(e) => setMotivo(e.target.value)}
+                                ></textarea>
+                            </div>
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setMostrarModal(false)}
+                                >
+                                    Cancelar
+                                </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={confirmarCambio}
+                                    disabled={!motivo.trim()}
+                                >
+                                    Confirmar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
